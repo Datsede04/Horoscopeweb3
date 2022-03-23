@@ -47,43 +47,43 @@ function App() {
     let dateObject = new Date(date);
     let day = dateObject.getDate();
     let month = dateObject.getMonth();
-    if (month == 0) {
+    if (month === 0) {
       if (day >= 20) {
         setZodiacSign("Aquarius");
       } else {
         setZodiacSign("Capricorn");
       }
-    } else if (month == 1) {
+    } else if (month === 1) {
       if (day >= 19) {
         setZodiacSign("Pisces");
       } else {
         setZodiacSign("Aquarius");
       }
-    } else if (month == 2) {
+    } else if (month === 2) {
       if (day >= 21) {
         setZodiacSign("Aries");
       } else {
         setZodiacSign("Pisces");
       }
-    } else if (month == 3) {
+    } else if (month === 3) {
       if (day >= 20) {
         setZodiacSign("Taurus");
       } else {
         setZodiacSign("Aries");
       }
-    } else if (month == 4) {
+    } else if (month === 4) {
       if (day >= 21) {
         setZodiacSign("Gemini");
       } else {
         setZodiacSign("Taurus");
       }
-    } else if (month == 5) {
+    } else if (month === 5) {
       if (day >= 21) {
         setZodiacSign("Cancer");
       } else {
         setZodiacSign("Gemini");
       }
-    } else if (month == 6) {
+    } else if (month === 6) {
       if (day >= 23) {
         setZodiacSign("Leo");
       } else {
