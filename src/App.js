@@ -1,31 +1,34 @@
+import logo from "./logo.svg";
+import "./App.css";
+
 import { useEffect, useState } from "react";
 import { Contract, providers } from "ethers";
+import NFT from "./abi/horoscopeNFT.json";
+
+const NFT_CONTRACT_ADDRESS = "0x2135C7E3254E00B2419188C7dbd7Ad5d09FE7F1d";
 
 function App() {
   const [isWalletInstalled, setIsWalletInstalled] = useState(false);
-  const [date, setDate] = useState("1970-01-01");
-  
-  // state for zodiacSign derived from date.
+  const [date, setDate] = useState("1991-09-01");
   const [zodiacSign, setZodiacSign] = useState(null);
-  
-  // state for keeping track of current connected account.
-  const [account, setAccount] = useState(null);
-  
+
   // state for whether app is minting or not.
   const [isMinting, setIsMinting] = useState(false);
-  
+
   const [NFTContract, setNFTContract] = useState(null);
-  
-  useEffect(() => {
-    calculateZodiacSign(date);
-  }, [date]);
-  
+
+  const [account, setAccount] = useState(null);
+
   useEffect(() => {
     if (window.ethereum) {
       setIsWalletInstalled(true);
     }
   }, []);
-  
+
+  function handleDateInput({ target }) {
+    setDate(target.value);
+  }
+
   async function connectWallet() {
     window.ethereum
       .request({
@@ -38,52 +41,56 @@ function App() {
         alert("Something went wrong");
       });
   }
-  
+
+  useEffect(() => {
+    calculateZodiacSign(date);
+  }, [date]);
+
   function handleDateInput({ target }) {
     setDate(target.value);
   }
-  
+
   function calculateZodiacSign(date) {
     let dateObject = new Date(date);
     let day = dateObject.getDate();
     let month = dateObject.getMonth();
-    if (month === 0) {
+    if (month == 0) {
       if (day >= 20) {
         setZodiacSign("Aquarius");
       } else {
         setZodiacSign("Capricorn");
       }
-    } else if (month === 1) {
+    } else if (month == 1) {
       if (day >= 19) {
         setZodiacSign("Pisces");
       } else {
         setZodiacSign("Aquarius");
       }
-    } else if (month === 2) {
+    } else if (month == 2) {
       if (day >= 21) {
         setZodiacSign("Aries");
       } else {
         setZodiacSign("Pisces");
       }
-    } else if (month === 3) {
+    } else if (month == 3) {
       if (day >= 20) {
         setZodiacSign("Taurus");
       } else {
         setZodiacSign("Aries");
       }
-    } else if (month === 4) {
+    } else if (month == 4) {
       if (day >= 21) {
         setZodiacSign("Gemini");
       } else {
         setZodiacSign("Taurus");
       }
-    } else if (month === 5) {
+    } else if (month == 5) {
       if (day >= 21) {
         setZodiacSign("Cancer");
       } else {
         setZodiacSign("Gemini");
       }
-    } else if (month === 6) {
+    } else if (month == 6) {
       if (day >= 23) {
         setZodiacSign("Leo");
       } else {
@@ -121,29 +128,48 @@ function App() {
       }
     }
   }
+
+  useEffect(() => {
+    function initNFTContract() {
+      const provider = new providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      setNFTContract(new Contract(NFT_CONTRACT_ADDRESS, NFT.abi, signer));
+    }
+    initNFTContract();
+  }, [account]);
+
+  async function mintNFT() {
+    setIsMinting(true);
+    try {
+      await NFTContract.mintNFT(account, zodiacSign);
+    } catch (e) {
+    } finally {
+      setIsMinting(false);
+    }
+  }
+
   if (account === null) {
     return (
-      <div className="App"> <br/>
-        {
-          isWalletInstalled ? (
-            <button onClick={connectWallet}>Connect Wallet</button>
-          ) : (
-            <p>Install Metamask wallet</p>
-          )
-        }
-   
+      <div className="App">
+        {" "}
+        <br />
+        {isWalletInstalled ? (
+          <button onClick={connectWallet}>Connect Wallet</button>
+        ) : (
+          <p>Install Metamask wallet</p>
+        )}
       </div>
     );
-      }
-        return (
-          <div className="App">
-          <h1>Horoscope NFT Minting Dapp</h1>
-          <p>Connected as: {account}</p>
-     
-      <input onChange={handleDateInput} value={date} type="date" id="dob"/>
+  }
+  return (
+    <div className="App">
+      <h1>Horoscope NFT Minting Dapp</h1>
+      <p>Connected as: {account}</p>
+
+      <input onChange={handleDateInput} value={date} type="date" id="dob" />
       <br />
       <br />
-        {zodiacSign ? (
+      {zodiacSign ? (
         <svg
           xmlns="http://www.w3.org/2000/svg"
           preserveAspectRatio="xMinYMin meet"
@@ -164,13 +190,13 @@ function App() {
           </text>
         </svg>
       ) : null}
-         
-          <br/>
-          <br/>
-          <button>Mint</button>
-      </div>
-    );
-    }
-   
 
+      <br />
+      <br />
+      <button isLoading={isMinting} onClick={mintNFT}>
+        Mint
+      </button>
+    </div>
+  );
+}
 export default App;
